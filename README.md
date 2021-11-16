@@ -1,6 +1,6 @@
 [![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Slack%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) [![Build Status](https://travis-ci.org/sensu/sensu-slack-handler.svg?branch=master)](https://travis-ci.org/sensu/sensu-slack-handler)
 
-# Sensu Slack Handler
+# Sensu Teams Handler
 
 - [Overview](#overview)
 - [Usage examples](#usage-examples)
@@ -28,8 +28,8 @@ Help:
 
 ```
 Usage:
-  sensu-slack-handler [flags]
-  sensu-slack-handler [command]
+  sensu-teams-handler [flags]
+  sensu-teams-handler [command]
 
 Available Commands:
   help        Help about any command
@@ -38,7 +38,7 @@ Available Commands:
 Flags:
   -c, --channel string                The channel to post messages to (default "#general")
   -t, --description-template string   The Slack notification output template, in Golang text/template format (default "{{ .Check.Output }}")
-  -h, --help                          help for sensu-slack-handler
+  -h, --help                          help for sensu-teams-handler
   -i, --icon-url string               A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
   -u, --username string               The username that messages will be sent as (default "sensu")
   -w, --webhook-url string            The webhook url to send messages to
@@ -66,7 +66,7 @@ use of the built-in [env secrets provider][8].
 type: Secret
 api_version: secrets/v1
 metadata:
-  name: slack-webhook-url
+  name: teams-webhook-url
 spec:
   provider: env
   id: SLACK_WEBHOOK_URL
@@ -123,17 +123,17 @@ api_version: core/v2
 type: Handler
 metadata:
   namespace: default
-  name: slack
+  name: teams
 spec:
   type: pipe
-  command: sensu-slack-handler --channel '#general' --username 'sensu'
+  command: sensu-teams-handler --channel '#general' --username 'sensu'
   filters:
   - is_incident
   runtime_assets:
-  - sensu/sensu-slack-handler
+  - sensu/sensu-teams-handler
   secrets:
   - name: SLACK_WEBHOOK_URL
-    secret: slack-webhook-url
+    secret: teams-webhook-url
   timeout: 10
 ```
 **Note**: The library used in the Sensu SDK for this plugin requires that if your Slack webhook URL is listed as an environment variable, the URL cannot be surrounded by quotes. 
@@ -161,7 +161,7 @@ spec:
   publish: true
   interval: 10
   handlers:
-  - slack
+  - teams
 ```
 
 ### Proxy Support
@@ -173,24 +173,24 @@ either a complete URL or a "host[:port]", in which case the "http" scheme is ass
 
 ## Installing from source and contributing
 
-Download the latest version of the sensu-slack-handler from [releases][4],
+Download the latest version of the sensu-teams-handler from [releases][4],
 or create an executable from this source.
 
 ### Compiling
 
-From the local path of the sensu-slack-handler repository:
+From the local path of the sensu-teams-handler repository:
 ```
 go build
 ```
 
 To contribute to this plugin, see [CONTRIBUTING](https://github.com/sensu/sensu-go/blob/master/CONTRIBUTING.md)
 
-[0]: https://github.com/sensu/sensu-slack-handler
+[0]: https://github.com/mildgrim/sensu-teams-handler
 [1]: https://github.com/sensu/sensu-go
 [3]: https://docs.sensu.io/sensu-go/latest/reference/handlers/#how-do-sensu-handlers-work
-[4]: https://github.com/sensu/sensu-slack-handler/releases
+[4]: https://github.com/sensu/sensu-teams-handler/releases
 [5]: https://docs.sensu.io/sensu-go/latest/reference/secrets/
-[6]: https://bonsai.sensu.io/assets/sensu/sensu-slack-handler
+[6]: https://bonsai.sensu.io/assets/mildgrim/sensu-teams-handler
 [7]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/
 [8]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/#use-env-for-secrets-management
 [9]: https://docs.sensu.io/sensu-go/latest/observability-pipeline/observe-process/handler-templates/
