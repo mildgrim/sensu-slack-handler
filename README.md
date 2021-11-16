@@ -1,4 +1,4 @@
-[![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Slack%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/sensu/sensu-slack-handler) [![Build Status](https://travis-ci.org/sensu/sensu-slack-handler.svg?branch=master)](https://travis-ci.org/sensu/sensu-slack-handler)
+[![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Teams%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/mildgrim/sensu-teams-handler) [![Build Status](https://travis-ci.org/mildgrim/sensu-teams-handler.svg?branch=master)](https://travis-ci.org/mildgrim/sensu-teams-handler)
 
 # Sensu Teams Handler
 
@@ -17,8 +17,8 @@
 ## Overview
 
 
-The [Sensu Slack Handler][0] is a [Sensu Event Handler][3] that sends event data
-to a configured Slack channel.
+The [Sensu Teams Handler][0] is a [Sensu Event Handler][3] that sends event data
+to a configured Teams channel.
 
 ## Usage examples
 
@@ -37,7 +37,7 @@ Available Commands:
 
 Flags:
   -c, --channel string                The channel to post messages to (default "#general")
-  -t, --description-template string   The Slack notification output template, in Golang text/template format (default "{{ .Check.Output }}")
+  -t, --description-template string   The Teams notification output template, in Golang text/template format (default "{{ .Check.Output }}")
   -h, --help                          help for sensu-teams-handler
   -i, --icon-url string               A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
   -u, --username string               The username that messages will be sent as (default "sensu")
@@ -48,11 +48,11 @@ Flags:
 
 |Argument               |Environment Variable       |
 |-----------------------|---------------------------|
-|--webhook-url          |SLACK_WEBHOOK_URL          |
-|--channel              |SLACK_CHANNEL              |
-|--username             |SLACK_USERNAME             |
-|--icon-url             |SLACK_ICON_URL             |
-|--description-template |SLACK_DESCRIPTION_TEMPLATE |
+|--webhook-url          |TEAMS_WEBHOOK_URL          |
+|--channel              |TEAMS_CHANNEL              |
+|--username             |TEAMS_USERNAME             |
+|--icon-url             |TEAMS_ICON_URL             |
+|--description-template |TEAMS_DESCRIPTION_TEMPLATE |
 
 
 **Security Note:** Care should be taken to not expose the webhook URL for this handler by specifying it
@@ -69,13 +69,13 @@ metadata:
   name: teams-webhook-url
 spec:
   provider: env
-  id: SLACK_WEBHOOK_URL
+  id: TEAMS_WEBHOOK_URL
 ```
 
 ### Templates
 
 This handler provides options for using templates to populate the values
-provided by the event in the message sent via Slack. More information on
+provided by the event in the message sent via Teams. More information on
 template syntax and format can be found in [the documentation][9]
 
 
@@ -107,7 +107,7 @@ annotations:
 
 Assets are the best way to make use of this handler. If you're not using an asset, please consider doing so! If you're using sensuctl 5.13 or later, you can use the following command to add the asset:
 
-`sensuctl asset add sensu/sensu-slack-handler`
+`sensuctl asset add mildgrim/sensu-teams-handler`
 
 If you're using an earlier version of sensuctl, you can download the asset
 definition from [this project's Bonsai Asset Index
@@ -132,13 +132,13 @@ spec:
   runtime_assets:
   - sensu/sensu-teams-handler
   secrets:
-  - name: SLACK_WEBHOOK_URL
+  - name: TEAMS_WEBHOOK_URL
     secret: teams-webhook-url
   timeout: 10
 ```
-**Note**: The library used in the Sensu SDK for this plugin requires that if your Slack webhook URL is listed as an environment variable, the URL cannot be surrounded by quotes. 
+**Note**: The library used in the Sensu SDK for this plugin requires that if your Teams webhook URL is listed as an environment variable, the URL cannot be surrounded by quotes. 
 
-**Security Note**: The Slack webhook URL should always be treated as a security
+**Security Note**: The Teams webhook URL should always be treated as a security
 sensitive configuration option and in this example, it is loaded into the
 handler configuration as an environment variable using a [secret][5]. Command
 arguments are commonly readable from the process table by other unprivaledged
