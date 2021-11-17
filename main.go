@@ -216,11 +216,6 @@ func sendMessage(event *corev2.Event) error {
 
 	hook.SkipWebhookURLValidationOnSend(true)
 
-	// add the Action to the message card
-	//if err := msgCard.AddPotentialAction(pa); err != nil {
-	//	log.Fatal("error encountered when adding action to message card:", err)
-	//}
-
 	err := hook.Send(config.teamswebHookURL, goteamsnotify.MessageCard{
 		Type:             "MessageCard",
 		Context:          "https://schema.org/extensions",
