@@ -83,7 +83,7 @@ template syntax and format can be found in [the documentation][9]
 
 All arguments for this handler are tunable on a per entity or check basis based
 on annotations. The annotations keyspace for this handler is
-`sensu.io/plugins/slack/config`.
+`sensu.io/plugins/teams/config`.
 
 **NOTE**: Due to [check token substituion][10], supplying a template value such
 as for `description-template` as a check annotation requires that you place the
@@ -92,13 +92,13 @@ within another template definition.  This does not apply to entity annotations.
 
 #### Examples
 
-To customize the channel for a given entity, you could use the following
+To customize the sender for a given entity, you could use the following
 sensu-agent configuration snippet:
 
 ```yml
 # /etc/sensu/agent.yml example
 annotations:
-  sensu.io/plugins/slack/config/channel: '#monitoring'
+  sensu.io/plugins/teams/config/sender: 'server1'
 ```
 
 ## Configuration
@@ -126,7 +126,7 @@ metadata:
   name: teams
 spec:
   type: pipe
-  command: sensu-teams-handler --channel '#general' --username 'sensu'
+  command: sensu-teams-handler --sensuUrl 'http://localhost:3000' --sender 'Sensu'
   filters:
   - is_incident
   runtime_assets:
