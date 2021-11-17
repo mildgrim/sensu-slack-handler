@@ -9,6 +9,7 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - Refactoring from a Slack handler to a Microsoft Teams handler
+- Added dependency to https://github.com/atc0005/go-teams-notify
 
 ## [1.5.0] - 2021-03-022
 

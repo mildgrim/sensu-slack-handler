@@ -153,6 +153,7 @@ func TestMain(t *testing.T) {
 	os.Args = []string{"teams", "-w", apiStub.URL}
 	defer func() { os.Args = oldArgs }()
 
+	//Figure out os.Exit(0) issue
 	main()
 	assert.True(requestReceived)
 }
