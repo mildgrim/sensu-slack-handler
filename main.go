@@ -2,118 +2,105 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"log"
 	"strings"
+	"time"
 
-	"github.com/bluele/slack"
+	goteamsnotify "github.com/atc0005/go-teams-notify/v2"
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
 )
 
-// HandlerConfig contains the Slack handler configuration
+// HandlerConfig contains the Teams handler configuration
 type HandlerConfig struct {
 	sensu.PluginConfig
-	slackwebHookURL          string
-	slackChannel             string
-	slackUsername            string
-	slackIconURL             string
-	slackDescriptionTemplate string
+	teamswebHookURL          string
+	teamsIsTest              string
+	teamsSender              string
+	teamsSensuURL            string
+	teamsDescriptionTemplate string
 }
 
 const (
 	webHookURL          = "webhook-url"
-	channel             = "channel"
-	username            = "username"
-	iconURL             = "icon-url"
+	isTest              = "false"
+	sender              = "sender"
+	sensuURL            = "sensu-url"
 	descriptionTemplate = "description-template"
 
-	defaultChannel  = "#general"
-	defaultIconURL  = "https://www.sensu.io/img/sensu-logo.png"
-	defaultUsername = "sensu"
+	defaultIsTest   = "false"
+	defaultSensuURL = "http://localhost:3000"
+	defaultSender   = "Sensu"
 	defaultTemplate = "{{ .Check.Output }}"
 )
 
 var (
 	config = HandlerConfig{
 		PluginConfig: sensu.PluginConfig{
-			Name:     "sensu-slack-handler",
-			Short:    "The Sensu Go Slack handler for notifying a channel",
-			Keyspace: "sensu.io/plugins/slack/config",
+			Name:     "sensu-teams-handler",
+			Short:    "The handler adapted from the Sensu Go Slack handler for notifying a Microsoft Teams channel",
+			Keyspace: "sensu.io/plugins/teams/config",
 		},
 	}
 
-	slackConfigOptions = []*sensu.PluginConfigOption{
+	teamsConfigOptions = []*sensu.PluginConfigOption{
 		{
 			Path:      webHookURL,
-			Env:       "SLACK_WEBHOOK_URL",
+			Env:       "TEAMS_WEBHOOK_URL",
 			Argument:  webHookURL,
 			Shorthand: "w",
 			Secret:    true,
 			Usage:     "The webhook url to send messages to",
-			Value:     &config.slackwebHookURL,
+			Value:     &config.teamswebHookURL,
 		},
 		{
-			Path:      channel,
-			Env:       "SLACK_CHANNEL",
-			Argument:  channel,
-			Shorthand: "c",
-			Default:   defaultChannel,
-			Usage:     "The channel to post messages to",
-			Value:     &config.slackChannel,
+			Path:      isTest,
+			Env:       "TEAMS_IS_TEST",
+			Argument:  isTest,
+			Shorthand: "t",
+			Default:   defaultIsTest,
+			Usage:     "Specify if this is a test run",
+			Value:     &config.teamsIsTest,
 		},
 		{
-			Path:      username,
-			Env:       "SLACK_USERNAME",
-			Argument:  username,
+			Path:      sender,
+			Env:       "TEAMS_SENDER",
+			Argument:  sender,
+			Shorthand: "s",
+			Default:   defaultSender,
+			Usage:     "The name that messages will be sent as",
+			Value:     &config.teamsSender,
+		},
+		{
+			Path:      sensuURL,
+			Env:       "TEAMS_SENSU_URL",
+			Argument:  sensuURL,
 			Shorthand: "u",
-			Default:   defaultUsername,
-			Usage:     "The username that messages will be sent as",
-			Value:     &config.slackUsername,
-		},
-		{
-			Path:      iconURL,
-			Env:       "SLACK_ICON_URL",
-			Argument:  iconURL,
-			Shorthand: "i",
-			Default:   defaultIconURL,
+			Default:   defaultSensuURL,
 			Usage:     "A URL to an image to use as the user avatar",
-			Value:     &config.slackIconURL,
+			Value:     &config.teamsSensuURL,
 		},
 		{
 			Path:      descriptionTemplate,
-			Env:       "SLACK_DESCRIPTION_TEMPLATE",
+			Env:       "TEAMS_DESCRIPTION_TEMPLATE",
 			Argument:  descriptionTemplate,
-			Shorthand: "t",
+			Shorthand: "d",
 			Default:   defaultTemplate,
-			Usage:     "The Slack notification output template, in Golang text/template format",
-			Value:     &config.slackDescriptionTemplate,
+			Usage:     "The Teams notification output template, in Golang text/template format",
+			Value:     &config.teamsDescriptionTemplate,
 		},
 	}
 )
 
 func main() {
-	goHandler := sensu.NewGoHandler(&config.PluginConfig, slackConfigOptions, checkArgs, sendMessage)
+	goHandler := sensu.NewGoHandler(&config.PluginConfig, teamsConfigOptions, checkArgs, sendMessage)
 	goHandler.Execute()
 }
 
 func checkArgs(_ *corev2.Event) error {
-	// Support deprecated environment variables
-	if webhook := os.Getenv("SENSU_SLACK_WEBHOOK_URL"); webhook != "" {
-		config.slackwebHookURL = webhook
-	}
-	if channel := os.Getenv("SENSU_SLACK_CHANNEL"); channel != "" && config.slackChannel == defaultChannel {
-		config.slackChannel = channel
-	}
-	if username := os.Getenv("SENSU_SLACK_USERNAME"); username != "" && config.slackUsername == defaultUsername {
-		config.slackUsername = username
-	}
-	if icon := os.Getenv("SENSU_SLACK_ICON_URL"); icon != "" && config.slackIconURL == defaultIconURL {
-		config.slackIconURL = icon
-	}
-
-	if len(config.slackwebHookURL) == 0 {
-		return fmt.Errorf("--%s or SLACK_WEBHOOK_URL environment variable is required", webHookURL)
+	if len(config.teamswebHookURL) == 0 {
+		return fmt.Errorf("--%s or TEAMS_WEBHOOK_URL environment variable is required", webHookURL)
 	}
 
 	return nil
@@ -126,6 +113,10 @@ func formattedEventAction(event *corev2.Event) string {
 	default:
 		return "ALERT"
 	}
+}
+
+func formattedTitle(event *corev2.Event) string {
+	return fmt.Sprintf("%s - %s", config.teamsSender, formattedEventAction(event))
 }
 
 func chomp(s string) string {
@@ -151,11 +142,11 @@ func formattedMessage(event *corev2.Event) string {
 func messageColor(event *corev2.Event) string {
 	switch event.Check.Status {
 	case 0:
-		return "good"
+		return "00FF00"
 	case 2:
-		return "danger"
+		return "FF0000"
 	default:
-		return "warning"
+		return "FFFF00"
 	}
 }
 
@@ -170,52 +161,81 @@ func messageStatus(event *corev2.Event) string {
 	}
 }
 
-func messageAttachment(event *corev2.Event) *slack.Attachment {
-	description, err := templates.EvalTemplate("description", config.slackDescriptionTemplate, event)
+func messageSection(event *corev2.Event) *goteamsnotify.MessageCardSection {
+
+	description, err := templates.EvalTemplate("description", config.teamsDescriptionTemplate, event)
 	if err != nil {
 		fmt.Printf("%s: Error processing template: %s", config.PluginConfig.Name, err)
 	}
 	description = strings.Replace(description, `\n`, "\n", -1)
-	attachment := &slack.Attachment{
-		Title:    "Description",
-		Text:     description,
-		Fallback: formattedMessage(event),
-		Color:    messageColor(event),
-		Fields: []*slack.AttachmentField{
-			{
-				Title: "Status",
-				Value: messageStatus(event),
-				Short: false,
-			},
-			{
-				Title: "Entity",
-				Value: event.Entity.Name,
-				Short: true,
-			},
-			{
-				Title: "Check",
-				Value: event.Check.Name,
-				Short: true,
-			},
-		},
+
+	section := goteamsnotify.NewMessageCardSection()
+
+	section.ActivityTitle = event.Check.Name
+
+	if config.teamsIsTest == "false" {
+		section.ActivitySubtitle = time.Now().Local().String()
+	} else {
+		section.ActivitySubtitle = "2021-11-17 02:00"
 	}
-	return attachment
+
+	section.AddFactFromKeyValue("Sender:", config.teamsSender)
+	section.AddFactFromKeyValue("Status:", messageStatus(event))
+	section.AddFactFromKeyValue("Entity:", event.Entity.Name)
+
+	if config.teamsIsTest == "false" {
+		section.Text = description
+	} else {
+		section.Text = "Test"
+	}
+
+	return section
+}
+
+func messageActionOpenURI(name string, targetURL string) *goteamsnotify.MessageCardPotentialAction {
+
+	action, err := goteamsnotify.NewMessageCardPotentialAction(goteamsnotify.PotentialActionOpenURIType, name)
+
+	if err != nil {
+		log.Fatal("error encountered when creating new action:", err)
+	}
+
+	action.MessageCardPotentialActionOpenURI.Targets =
+		[]goteamsnotify.MessageCardPotentialActionOpenURITarget{
+			{
+				OS:  "default",
+				URI: targetURL,
+			},
+		}
+
+	return action
 }
 
 func sendMessage(event *corev2.Event) error {
-	hook := slack.NewWebHook(config.slackwebHookURL)
-	err := hook.PostMessage(&slack.WebHookPostPayload{
-		Attachments: []*slack.Attachment{messageAttachment(event)},
-		Channel:     config.slackChannel,
-		IconUrl:     config.slackIconURL,
-		Username:    config.slackUsername,
+	hook := goteamsnotify.NewClient()
+
+	hook.SkipWebhookURLValidationOnSend(true)
+
+	// add the Action to the message card
+	//if err := msgCard.AddPotentialAction(pa); err != nil {
+	//	log.Fatal("error encountered when adding action to message card:", err)
+	//}
+
+	err := hook.Send(config.teamswebHookURL, goteamsnotify.MessageCard{
+		Type:             "MessageCard",
+		Context:          "https://schema.org/extensions",
+		Summary:          "Sensu alert card",
+		Title:            formattedTitle(event),
+		ThemeColor:       messageColor(event),
+		Sections:         []*goteamsnotify.MessageCardSection{messageSection(event)},
+		PotentialActions: []*goteamsnotify.MessageCardPotentialAction{messageActionOpenURI("View in Sensu", config.teamsSensuURL)},
 	})
 	if err != nil {
-		return fmt.Errorf("Failed to send Slack message: %v", err)
+		return fmt.Errorf("failed to send Teams message: %v", err)
 	}
 
 	// FUTURE: send to AH
-	fmt.Printf("Notification sent to Slack channel %s\n", config.slackChannel)
+	fmt.Print("Notification sent to Teams channel\n")
 
 	return nil
 }

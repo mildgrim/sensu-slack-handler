@@ -7,6 +7,9 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Refactoring from a Slack handler to a Microsoft Teams handler
+
 ## [1.5.0] - 2021-03-022
 
 ### Changed

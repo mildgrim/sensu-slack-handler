@@ -7,12 +7,12 @@ metadata:
   labels:
     foo: bar
   annotations:
-    sensu.io/plugins/slack/config/channel: "#demo"
+    sensu.io/plugins/teams/config/channel: "#demo"
 spec:
   command: echo "Hello {{ .system.os }} world!" && exit 1
   publish: false
   interval: 10
   handlers:
-  - slack
+  - teams
   subscriptions:
   - development

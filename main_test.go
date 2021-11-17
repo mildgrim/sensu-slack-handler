@@ -75,15 +75,15 @@ func TestMessageColor(t *testing.T) {
 
 	event.Check.Status = 0
 	color := messageColor(event)
-	assert.Equal("good", color)
+	assert.Equal("00FF00", color)
 
 	event.Check.Status = 1
 	color = messageColor(event)
-	assert.Equal("warning", color)
+	assert.Equal("FFFF00", color)
 
 	event.Check.Status = 2
 	color = messageColor(event)
-	assert.Equal("danger", color)
+	assert.Equal("FF0000", color)
 }
 
 func TestMessageStatus(t *testing.T) {
@@ -109,23 +109,25 @@ func TestSendMessage(t *testing.T) {
 
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := ioutil.ReadAll(r.Body)
-		expectedBody := `{"channel":"#test","attachments":[{"color":"good","fallback":"RESOLVED - entity1/check1:","title":"Description","text":"","fields":[{"title":"Status","value":"Resolved","short":false},{"title":"Entity","value":"entity1","short":true},{"title":"Check","value":"check1","short":true}]}]}`
+		expectedBody := `{"@type":"MessageCard","@context":"https://schema.org/extensions","summary":"Sensu alert card","title":"Sensu - RESOLVED","themeColor":"00FF00","sections":[{"text":"Test","activityTitle":"check1","activitySubtitle":"2021-11-17 02:00","facts":[{"name":"Sender:","value":"Sensu"},{"name":"Status:","value":"Resolved"},{"name":"Entity:","value":"entity1"}]}],"potentialAction":[{"@type":"OpenUri","name":"View in Sensu","targets":[{"os":"default","uri":"http://localhost:3000"}]}]}`
 		assert.Equal(expectedBody, string(body))
 		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(`{"ok": true}`))
+		_, err := w.Write([]byte(`1`))
 		require.NoError(t, err)
 	}))
 
-	config.slackwebHookURL = apiStub.URL
-	config.slackChannel = "#test"
-	config.slackDescriptionTemplate = "{{ .Check.Output }}"
+	config.teamsSender = "Sensu"
+	config.teamsSensuURL = "http://localhost:3000"
+	config.teamswebHookURL = apiStub.URL
+	config.teamsIsTest = "true"
+	config.teamsDescriptionTemplate = "{{ .Check.Output }}"
 	err := sendMessage(event)
 	assert.NoError(err)
 }
 
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
-	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-slack-")
+	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-teams-")
 	defer func() {
 		_ = os.Remove(file.Name())
 	}()
@@ -143,12 +145,12 @@ func TestMain(t *testing.T) {
 	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestReceived = true
 		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(`{"ok": true}`))
+		_, err := w.Write([]byte(`1`))
 		require.NoError(t, err)
 	}))
 
 	oldArgs := os.Args
-	os.Args = []string{"slack", "-w", apiStub.URL}
+	os.Args = []string{"teams", "-w", apiStub.URL}
 	defer func() { os.Args = oldArgs }()
 
 	main()
