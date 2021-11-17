@@ -24,7 +24,7 @@ type HandlerConfig struct {
 
 const (
 	webHookURL          = "webhook-url"
-	isTest              = "false"
+	isTest              = "is-test"
 	sender              = "sender"
 	sensuURL            = "sensu-url"
 	descriptionTemplate = "description-template"

@@ -36,11 +36,11 @@ Available Commands:
   version     Print the version number of this plugin
 
 Flags:
-  -c, --channel string                The channel to post messages to (default "#general")
-  -t, --description-template string   The Teams notification output template, in Golang text/template format (default "{{ .Check.Output }}")
+  -s, --sender string                 The name that messages will be sent as (default "Sensu")
+  -d, --description-template string   The Teams notification output template, in Golang text/template format (default "{{ .Check.Output }}")
   -h, --help                          help for sensu-teams-handler
-  -i, --icon-url string               A URL to an image to use as the user avatar (default "https://www.sensu.io/img/sensu-logo.png")
-  -u, --username string               The username that messages will be sent as (default "sensu")
+  -u, --sensu-url string              A URL to the Sensu dashboard (default "http://localhost:3000")
+  -t, --is-test string                Specify if this is a test run (default "false")
   -w, --webhook-url string            The webhook url to send messages to
 ```
 
@@ -49,9 +49,9 @@ Flags:
 |Argument               |Environment Variable       |
 |-----------------------|---------------------------|
 |--webhook-url          |TEAMS_WEBHOOK_URL          |
-|--channel              |TEAMS_CHANNEL              |
-|--username             |TEAMS_USERNAME             |
-|--icon-url             |TEAMS_ICON_URL             |
+|--sender               |TEAMS_SENDER               |
+|--is-test              |TEAMS_IS_TEST              |
+|--sensu-url            |TEAMS_SENSU_URL            |
 |--description-template |TEAMS_DESCRIPTION_TEMPLATE |
 
 
