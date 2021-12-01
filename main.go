@@ -7,9 +7,9 @@ import (
 	"time"
 
 	goteamsnotify "github.com/atc0005/go-teams-notify/v2"
-	"github.com/sensu-community/sensu-plugin-sdk/sensu"
-	"github.com/sensu-community/sensu-plugin-sdk/templates"
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
+	sensu "github.com/sensu/sensu-plugin-sdk/sensu"
+	templates "github.com/sensu/sensu-plugin-sdk/templates"
 )
 
 // HandlerConfig contains the Teams handler configuration
