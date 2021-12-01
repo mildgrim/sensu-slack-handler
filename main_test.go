@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"testing"
 
 	corev2 "github.com/sensu/sensu-go/api/core/v2"
@@ -126,34 +127,46 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestMain(t *testing.T) {
-	assert := assert.New(t)
-	file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-teams-")
-	defer func() {
-		_ = os.Remove(file.Name())
-	}()
+	if os.Getenv("BE_TEST") == "1" {
+		assert := assert.New(t)
+		file, _ := ioutil.TempFile(os.TempDir(), "sensu-handler-teams-")
+		defer func() {
+			_ = os.Remove(file.Name())
+		}()
 
-	event := corev2.FixtureEvent("entity1", "check1")
-	eventJSON, _ := json.Marshal(event)
-	_, err := file.WriteString(string(eventJSON))
-	require.NoError(t, err)
-	require.NoError(t, file.Sync())
-	_, err = file.Seek(0, 0)
-	require.NoError(t, err)
-	os.Stdin = file
-	requestReceived := false
-
-	var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestReceived = true
-		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte(`1`))
+		event := corev2.FixtureEvent("entity1", "check1")
+		eventJSON, _ := json.Marshal(event)
+		_, err := file.WriteString(string(eventJSON))
 		require.NoError(t, err)
-	}))
+		require.NoError(t, file.Sync())
+		_, err = file.Seek(0, 0)
+		require.NoError(t, err)
+		os.Stdin = file
+		requestReceived := false
 
-	oldArgs := os.Args
-	os.Args = []string{"teams", "-w", apiStub.URL}
-	defer func() { os.Args = oldArgs }()
+		var apiStub = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestReceived = true
+			w.WriteHeader(http.StatusOK)
+			_, err := w.Write([]byte(`1`))
+			require.NoError(t, err)
+		}))
 
-	//Figure out os.Exit(0) issue
-	main()
-	assert.True(requestReceived)
+		oldArgs := os.Args
+		os.Args = []string{"teams", "-w", apiStub.URL}
+		defer func() { os.Args = oldArgs }()
+
+		main()
+		assert.True(requestReceived)
+		return
+	}
+
+	assert2 := assert.New(t)
+	cmd := exec.Command(os.Args[0], "-test.run=TestMain")
+	cmd.Env = append(os.Environ(), "BE_TEST=1")
+	err2 := cmd.Run()
+	if e, ok := err2.(*exec.ExitError); ok && !e.Success() {
+		assert2.True(false)
+		return
+	}
+	assert2.True(true)
 }
