@@ -18,7 +18,7 @@
 
 
 The [Sensu Teams Handler][0] is a [Sensu Event Handler][3] that sends event data
-to a configured Teams channel.
+to a configured Teams channel. It is a rewrite by [Sebastian Mildgrim](https://github.com/mildgrim) of the Sensu Inc written [sensu-slack-handler](https://github.com/sensu/sensu-slack-handler)
 
 ## Usage examples
 
