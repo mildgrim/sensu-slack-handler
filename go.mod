@@ -1,6 +1,6 @@
 module github.com/mildgrim/sensu-teams-handler
 
-go 1.14
+go 1.17
 
 require (
 	github.com/atc0005/go-teams-notify/v2 v2.6.0
