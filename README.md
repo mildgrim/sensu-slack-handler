@@ -1,4 +1,4 @@
-[![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Teams%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/mildgrim/sensu-teams-handler) [![Build Status](https://travis-ci.org/mildgrim/sensu-teams-handler.svg?branch=master)](https://travis-ci.org/mildgrim/sensu-teams-handler)
+[![Bonsai Asset Badge](https://img.shields.io/badge/Sensu%20Teams%20Handler-Download%20Me-brightgreen.svg?colorB=89C967&logo=sensu)](https://bonsai.sensu.io/assets/mildgrim/sensu-teams-handler) [![Build Status](https://app.travis-ci.com/mildgrim/sensu-teams-handler.svg?branch=main)](https://app.travis-ci.com/mildgrim/sensu-teams-handler)
 
 # Sensu Teams Handler
 
