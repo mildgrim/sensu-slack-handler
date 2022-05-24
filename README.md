@@ -188,7 +188,7 @@ To contribute to this plugin, see [CONTRIBUTING](https://github.com/sensu/sensu-
 [0]: https://github.com/mildgrim/sensu-teams-handler
 [1]: https://github.com/sensu/sensu-go
 [3]: https://docs.sensu.io/sensu-go/latest/reference/handlers/#how-do-sensu-handlers-work
-[4]: https://github.com/sensu/sensu-teams-handler/releases
+[4]: https://github.com/mildgrim/sensu-teams-handler/releases
 [5]: https://docs.sensu.io/sensu-go/latest/reference/secrets/
 [6]: https://bonsai.sensu.io/assets/mildgrim/sensu-teams-handler
 [7]: https://docs.sensu.io/sensu-go/latest/guides/secrets-management/
